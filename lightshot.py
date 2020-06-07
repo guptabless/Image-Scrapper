@@ -1,38 +1,64 @@
 import requests
 import random
 import string
+import bcolors
+import sys, argparse
 
-print("-------------------------------------------------------------")
-print("------------------------NG-----------------------------------")
-print("Usage: Python lightshot.py ")
-print("-------------------------------------------------------------")
+def banner():
+    print("""
 
-i = 0
-N = 22
+            ██╗███╗░░░███╗░█████╗░░██████╗░███████╗░██████╗░█████╗░██████╗░░█████╗░██████╗░███████╗██████╗░
+            ██║████╗░████║██╔══██╗██╔════╝░██╔════╝██╔════╝██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗
+            ██║██╔████╔██║███████║██║░░██╗░█████╗░░╚█████╗░██║░░╚═╝██████╔╝███████║██████╔╝█████╗░░██████╔╝
+            ██║██║╚██╔╝██║██╔══██║██║░░╚██╗██╔══╝░░░╚═══██╗██║░░██╗██╔══██╗██╔══██║██╔═══╝░██╔══╝░░██╔══██╗
+            ██║██║░╚═╝░██║██║░░██║╚██████╔╝███████╗██████╔╝╚█████╔╝██║░░██║██║░░██║██║░░░░░███████╗██║░░██║
+            ╚═╝╚═╝░░░░░╚═╝╚═╝░░╚═╝░╚═════╝░╚══════╝╚═════╝░░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░░░░╚══════╝╚═╝░░╚═╝   
+                                                                                                Code by NG          
+          """)
 
-input_scrap = int(input("How much image you want to scrap"))
+if len(sys.argv) > 1:
+    banner()
+    if ((sys.argv[1] == '-c')| (sys.argv[1] == '-o')):
+        try:
+            input_scrap = sys.argv[2]
+            input_path = sys.argv[4]
 
-input_path = str(input("Enter the path yo want save those images"))
+            parser = argparse.ArgumentParser()
+            parser.add_argument("-c", required=True)
+            parser.add_argument("-o", required=True)
+            args = parser.parse_args()
 
-for i in range(0, input_scrap):
+            i = 0
+            N = 22
+            for i in range(0, int(input_scrap)):
+                res = ''.join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=N))
+                url_host = 'https://image.prntscr.com/image/' + res + '.png'
+                print(bcolors.OKMSG + 'Generated URL :' + url_host)
+                myfile_statuscode = requests.get(url_host).status_code
+                myfile = requests.get(url_host)
+                myfile_str = str(myfile)
 
-    res = ''.join(random.choices(string.ascii_uppercase + string.digits + string.ascii_lowercase, k=N))
+            if (myfile_statuscode == 200):
+                url = input_path + res + '.png'
+                url_str = str(url)
+                print(bcolors.OKMSG + "URL", url)
+                open(url, 'wb').write(myfile.content)
+                i = i + 1
+            else:
+                print(bcolors.ERRMSG + "No Images Found")
 
-    print("The generated random string : " + str(res))
-    url_host = 'https://image.prntscr.com/image/' + res + '.png'
-    print(url_host)
-    myfile_statuscode = requests.get(url_host).status_code
-    myfile = requests.get(url_host)
-    myfile_str = str(myfile)
+        except:
+            print('Please enter python ImageScraper.py -c <valid domain name> -o <output location where you want to save image>')
 
-    if(myfile_statuscode == 200):
-      url = input_path + res + '.png'
-      url_str = str(url)
-      print("URL",url)
-      open(url, 'wb').write(myfile.content)
-      i = i + 1
-    else:
-      print("Image Not Found")
+    elif ((sys.argv[1] == '-c') | (sys.argv[1] == '--help')):
+        print(bcolors.BOLD + 'usage: ImageScraper [-h] -c Count' '\n' 'OPTIONS:' '\n' '-h,--help    '
+                             'show this help message and exit' '\n''-c Count,   --count Count' '\n' '-o output    Output where you want to Save image')
+    elif (((sys.argv[1] != '-c') | (sys.argv[1] != '-o'))):
+        print('Please enter -c <Count> -o <output location>')
+else:
+    banner()
+    print(bcolors.ERR + 'Please select atleast 1 option from (-c,-o) or -h, with valid count and location')
+
 
 
 
